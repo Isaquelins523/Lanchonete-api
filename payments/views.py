@@ -1,7 +1,8 @@
 from django.shortcuts import render, redirect
 from django.http import HttpResponse
-from rolepermissions.decorators import has_permission_decorator
 from .models import Users
+import mercadopago
+from django.conf import settings
 from django.contrib.auth import password_validation
 from django.core.exceptions import ValidationError
 from rolepermissions.roles import assign_role
@@ -9,8 +10,9 @@ from paymentsManager.roles import Aluno
 from django.shortcuts import redirect
 from django.urls import reverse
 from django.contrib import auth
+from django.contrib.auth.decorators import login_required
 
-@has_permission_decorator('cadastrar_aluno')
+
 def cadastrar_aluno(request):
     if request.method == "GET":
         return render(request, 'cadastrar_aluno.html')
@@ -40,13 +42,13 @@ def cadastrar_aluno(request):
         assign_role(user, Aluno)
 
        
-        return HttpResponse('sucesso') 
+        return redirect('login')
     
     
 def login(request):
     if request.method == "GET":
         if request.user.is_authenticated:
-            return redirect(reverse('login'))
+            return redirect(reverse('deposito'))
         return render(request, 'login.html')
         
     elif request.method == "POST":
@@ -56,12 +58,74 @@ def login(request):
         user = auth.authenticate(username=login, password=senha)
 
         if not user:
-            return HttpResponse('Usuário inválido')
+            return HttpResponse('Usuário ou senha inválidos')
             
         auth.login(request, user)
-        return HttpResponse('Usuário logado com sucesso!')
+        return redirect('deposito')  
+
     
 
 def logout(request):
     request.session.flush()
     return redirect(reverse('login'))
+
+
+sdk = mercadopago.SDK(settings.MERCADO_PAGO_ACCESS_TOKEN)
+
+@login_required
+def deposito(request):
+    if request.method == "GET":
+        return render(request, 'deposito.html')
+
+    if request.method == "POST":
+        valor = request.POST.get('valor')
+
+        if not valor or float(valor) <= 0:
+            return HttpResponse("Valor inválido. O valor deve ser maior que zero.")
+
+        try:
+            valor = float(valor)
+        except ValueError:
+            return HttpResponse("Valor inválido.")
+
+        # Criar a preferência de pagamento
+        payment_data = {
+            "items": [
+                {
+                    "id": "1",
+                    "title": "Depósito na carteira",
+                    "description": f"Depositar R${valor:.2f} na carteira",
+                    "quantity": 1,
+                    "currency_id": "BRL",
+                    "unit_price": valor,
+                },
+            ],
+            "back_urls": {
+                "success": "http://localhost:8000/success/",
+                "failure": "http://localhost:8000/failure/",
+                "pending": "http://localhost:8000/pending/",
+            },
+            "auto_return": "all",
+            "default_payment_method_id": "pix", 
+            "excluded_payment_types": [
+                {"id": "ticket"},
+                {"id": "credit_card"},
+                {"id": "debit_card"},
+                {"id": "bank_transfer"},
+                {"id": "atm"},
+            ],
+            "excluded_payment_methods": [
+                {"id": "visa"},
+                {"id": "master"},
+            ],
+        }
+
+        # Criando a preferência de pagamento
+        result = sdk.preference().create(payment_data)
+        payment = result["response"]
+
+        # Pegando o link de pagamento gerado
+        init_point = payment["init_point"]
+
+        # Redirecionando para a página de pagamento
+        return redirect(init_point)
