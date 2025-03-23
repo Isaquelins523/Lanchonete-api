@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Users
+from .models import Users, Deposito
 from django.contrib.auth import admin as admin_auth_django
 from .forms import UserChangeForm, UserCreationForm
 
@@ -11,3 +11,5 @@ class UserAdmin(admin_auth_django.UserAdmin):
     fieldsets = admin_auth_django.UserAdmin.fieldsets + (
         ('Role', {'fields': ('role',)}),
     )
+
+admin.site.register(Deposito)
