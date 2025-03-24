@@ -53,6 +53,11 @@
         font-size: 1rem;
         margin-bottom: 20px;
       }
+
+      .logout-button {
+        width: 100%;
+        margin-top: 10px;
+      }
     </style>
   </head>
   <body>
@@ -97,6 +102,9 @@
                 >
                 <a href="{% url 'deposito' %}" class="btn btn-secondary"
                   >Voltar</a
+                >
+                <a href="{% url 'sair' %}" class="btn btn-danger logout-button"
+                  >Sair da conta</a
                 >
               </div>
             </div>

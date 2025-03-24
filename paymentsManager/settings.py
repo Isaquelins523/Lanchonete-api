@@ -134,5 +134,9 @@ ROLEPERMISSIONS_MODULE = 'paymentsManager.roles'
 # settings.py
 MERCADO_PAGO_ACCESS_TOKEN = 'TEST-8237077071375977-032008-518b623c78d51fa6294cabf9b7acf5c2-374825125'
 
+# Configurações de mídia
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
 
 

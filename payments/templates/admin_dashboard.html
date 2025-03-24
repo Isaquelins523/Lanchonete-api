@@ -37,13 +37,30 @@
         color: #ff6347;
         font-weight: bold;
       }
+      .logout-button {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+      }
+      .student-photo {
+        width: 250px;
+        height: 250px;
+        object-fit: cover;
+        border-radius: 10px; /* Deixa a borda levemente arredondada */
+        border: 2px solid #ff6347; /* Adiciona uma borda estilosa */
+      }
     </style>
   </head>
+
   <body>
     <div class="container">
       <div class="row justify-content-center">
         <div class="col-md-8">
           <div class="card">
+            <a href="{% url 'sair' %}" class="btn btn-danger logout-button"
+              >Sair</a
+            >
+
             <div class="card-header">
               <h2>Painel do Administrador</h2>
             </div>
@@ -70,6 +87,24 @@
               {% if aluno %}
               <hr />
               <h4>Informações do Aluno</h4>
+
+              <div class="text-center mb-3">
+                {% if aluno.foto %}
+                <img
+                  src="{{ aluno.foto.url }}"
+                  class="img-thumbnail student-photo"
+                  alt="Foto de {{ aluno.first_name }}"
+                  onerror="this.onerror=null;this.src='/static/imagens/sem-foto.jpg'"
+                />
+                {% else %}
+                <img
+                  src="/static/imagens/sem-foto.jpg"
+                  class="img-thumbnail student-photo"
+                  alt="Sem foto"
+                />
+                {% endif %}
+              </div>
+
               <p><strong>Nome:</strong> {{ aluno.first_name }}</p>
               <p><strong>Saldo:</strong> R$ {{ aluno.saldo }}</p>
               <p><strong>ID do Aluno:</strong> {{ aluno.id_aluno }}</p>

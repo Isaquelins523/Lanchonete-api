@@ -78,6 +78,11 @@
       .table tbody tr:nth-child(even) {
         background-color: #f8f9fa;
       }
+
+      .logout-button {
+        width: 100%;
+        margin-top: 10px;
+      }
     </style>
   </head>
 
@@ -109,6 +114,9 @@
                   />
                 </div>
                 <div class="text-center">
+                  <a href="{% url 'saldo' %}" class="btn btn-primary"
+                    >Ver Saldo</a
+                  >
                   <button type="submit" class="btn btn-success btn-block">
                     Depositar
                   </button>
@@ -138,6 +146,9 @@
                   {% endfor %}
                 </tbody>
               </table>
+              <a href="{% url 'sair' %}" class="btn btn-danger logout-button"
+                >Sair da conta</a
+              >
             </div>
           </div>
         </div>

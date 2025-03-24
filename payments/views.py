@@ -12,6 +12,8 @@ from django.urls import reverse
 from django.contrib import auth
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+from django.core.files.storage import FileSystemStorage
+import os
 
 
 def cadastrar_aluno(request):
@@ -22,10 +24,11 @@ def cadastrar_aluno(request):
         nome = request.POST.get('nome')
         email = request.POST.get('email')
         senha = request.POST.get('senha')
+        foto = request.FILES.get('foto')
 
 
-        if not nome or not email or not senha:
-            messages.error(request, "Nome, email e senha são obrigatórios!")
+        if not nome or not email or not senha or not foto:
+            messages.error(request, "Nome, email, senha e foto são obrigatórios!")
             return redirect('cadastrar_aluno')
 
         if Users.objects.filter(email=email).exists():
@@ -46,8 +49,19 @@ def cadastrar_aluno(request):
                 password=senha,
                 role='ALN'
             )
-            print("Aluno cadastrado:", user)
             assign_role(user, Aluno)
+
+            if foto:
+                ext = foto.name.split('.')[-1]
+                new_filename = f'foto_{user.id_aluno}.{ext}'
+
+                fs = FileSystemStorage(location=os.path.join(settings.MEDIA_ROOT, 'alunos_fotos'))
+
+                filename = fs.save(new_filename, foto)
+                user.foto = f'alunos_fotos/{filename}'
+                user.save()
+
+                print(f"Arquivo salvo em: {fs.path(filename)}")
 
             messages.success(request, "Cadastro realizado com sucesso! Faça login.")
             return redirect(reverse('login'))
@@ -61,7 +75,7 @@ def cadastrar_aluno(request):
 def login(request):
     if request.method == "GET":
         if request.user.is_authenticated:
-            return redirect(reverse('deposito'))
+            return redirect(reverse('deposito') if request.user.role == 'ALN' else reverse('admin_dashboard'))
         return render(request, 'login.html')
         
     elif request.method == "POST":
@@ -71,14 +85,20 @@ def login(request):
         user = auth.authenticate(username=login, password=senha)
 
         if not user:
-            return HttpResponse('Usuário ou senha inválidos')
+            messages.error(request, 'Usuário ou senha inválidos')
+            return redirect('login')
             
         auth.login(request, user)
 
-        
-        if user.role == 'ALN' and not user.id_aluno:
-            user.save() 
-        return redirect('deposito')  
+        # Valida o tipo de usuário e redireciona
+        if user.role == 'ALN':
+            return redirect('deposito')
+        elif user.role == 'ADM':
+            return redirect('admin_dashboard')
+        else:
+            messages.error(request, 'Usuário sem permissão.')
+            return redirect('login')
+
 
     
 
@@ -219,6 +239,10 @@ def admin_dashboard(request):
             
 
     return render(request, 'admin_dashboard.html', {'aluno': aluno})
+
+
+def home(request):
+    return render(request, 'home.html')
 
 
 
