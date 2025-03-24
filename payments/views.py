@@ -1,5 +1,4 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from django.http import HttpResponse
 from .models import Users, Deposito
 import mercadopago
 from django.conf import settings
@@ -61,7 +60,6 @@ def cadastrar_aluno(request):
                 user.foto = f'alunos_fotos/{filename}'
                 user.save()
 
-                print(f"Arquivo salvo em: {fs.path(filename)}")
 
             messages.success(request, "Cadastro realizado com sucesso! Faça login.")
             return redirect(reverse('login'))
@@ -90,7 +88,7 @@ def login(request):
             
         auth.login(request, user)
 
-        # Valida o tipo de usuário e redireciona
+        
         if user.role == 'ALN':
             return redirect('deposito')
         elif user.role == 'ADM':

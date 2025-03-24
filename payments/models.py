@@ -13,7 +13,7 @@ class Users(AbstractUser):
     foto = models.ImageField(upload_to='alunos_fotos/', null=True, blank=True)
 
     def save(self, *args, **kwargs):
-        if not self.id_aluno:  # Se o ID do aluno ainda não foi gerado
+        if not self.id_aluno:  
             self.id_aluno = self.gerar_id_aluno()
         super().save(*args, **kwargs)
 
