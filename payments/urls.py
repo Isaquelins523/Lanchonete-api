@@ -12,4 +12,5 @@ urlpatterns = [
     path('deposito_falha/', views.deposito_falha, name='deposito_falha'),
     path('admin_dashboard/', views.admin_dashboard, name='admin_dashboard'),
     path('logout/', views.logout, name="sair"),
+    path('webhook/mercadopago/', views.mercado_pago_webhook, name='mercado_pago_webhook')
 ]

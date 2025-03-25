@@ -12,6 +12,9 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 
 from pathlib import Path
 import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -26,8 +29,16 @@ SECRET_KEY = 'django-insecure-_8)*=la#9bea(#8a@=x*c8q8neav$cgmz0jvxpb%2x9a%cljm*
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["*"]
 
+CORS_ALLOW_ALL_ORIGINS = True
+
+# CSRF Trusted Origins
+CSRF_TRUSTED_ORIGINS = [
+    'https://lanchonete-api.fly.dev',  
+    'https://www.mercadopago.com', 
+    'https://api.mercadopago.com'
+]
 
 # Application definition
 
@@ -125,18 +136,23 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-#confif auth
+# Configuração de autenticação
 AUTH_USER_MODEL = 'payments.Users'
 
 # Role permissions
 ROLEPERMISSIONS_MODULE = 'paymentsManager.roles'
 
-# settings.py
-MERCADO_PAGO_ACCESS_TOKEN = 'TEST-8237077071375977-032008-518b623c78d51fa6294cabf9b7acf5c2-374825125'
+# MercadoPago Access Token
+MERCADOPAGO_PUBLIC_KEY = os.getenv("MERCADOPAGO_PUBLIC_KEY")
+MERCADOPAGO_ACCESS_TOKEN = os.getenv("MERCADOPAGO_ACCESS_TOKEN")
 
 # Configurações de mídia
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+# Diretório onde os arquivos estáticos serão coletados
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+
 
 
 

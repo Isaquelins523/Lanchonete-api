@@ -72,7 +72,8 @@
             </div>
             <div class="card-body">
               <p class="descricao">Saldo disponível na sua carteira:</p>
-              <p class="saldo">R$ {{ saldo }}</p>
+              <p class="saldo" id="saldo">R$ {{ saldo }}</p>
+              <!-- Adicione o id "saldo" para fácil acesso no JS -->
 
               <h3>Histórico de Depósitos</h3>
               <table class="table table-striped">
@@ -112,6 +113,45 @@
         </div>
       </div>
     </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
+    <script>
+      // Função para verificar o pagamento e atualizar o saldo automaticamente
+      function verificarPagamento(payment_id) {
+        // Chama a API para verificar o status do pagamento
+        $.ajax({
+          url: "/mercado_pago_webhook/",
+          method: "POST",
+          data: JSON.stringify({ payment_id: payment_id }),
+          contentType: "application/json",
+          success: function (response) {
+            if (response.status === "success") {
+              document.getElementById("saldo").innerText =
+                "R$ " + response.updated_balance.toFixed(2);
+
+              window.location.href = "/saldo";
+            } else {
+              alert("Pagamento não aprovado.");
+            }
+          },
+          error: function (error) {
+            alert("Erro ao verificar o pagamento.");
+          },
+        });
+      }
+
+      const payment_id = getUrlParameter("payment_id");
+      if (payment_id) {
+        verificarPagamento(payment_id);
+      }
+
+      function getUrlParameter(name) {
+        const url = window.location.href;
+        const regex = new RegExp("[?&]" + name + "=([^&]*)", "i");
+        const result = regex.exec(url);
+        return result ? decodeURIComponent(result[1]) : null;
+      }
+    </script>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
   </body>
